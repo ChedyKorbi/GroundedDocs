@@ -3,7 +3,7 @@ name = "groundeddocs"
 version = "0.1.0"
 description = "Production-grade hybrid RAG system with Arabic support (Arabic pass deferred to v1.1)."
 readme = "README.md"
-requires-python = ">=3.11,<3.15"
+requires-python = ">=3.12,<3.15"
 license = { text = "MIT" }
 authors = [{ name = "Chedy Korbi" }]
 dependencies = [
@@ -21,6 +21,9 @@ dependencies = [
     "groq>=1.6,<2.0",
     "rank-bm25>=0.2,<0.3",
     "numpy>=2.0,<3.0",
+    "pypdf>=6.15.0",
+    "beautifulsoup4>=4.15.0",
+    "langchain-community>=0.4,<0.5",
 ]
 
 [project.optional-dependencies]
@@ -40,7 +43,7 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 exclude = ["frontend", "node_modules"]
 
 [tool.ruff.lint]
@@ -51,7 +54,7 @@ ignore = ["B008"]
 quote-style = "double"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
