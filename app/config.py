@@ -65,6 +65,12 @@ class Settings(BaseSettings):
     fusion_dense_weight: float = 1.0
     fusion_sparse_weight: float = 1.0
 
+    # Grounded generation
+    generation_max_tokens: int = 1024
+    generation_temperature: float = 0.0
+    generation_context_k: int = 6
+    generation_insufficient_sentinel: str = "INSUFFICIENT_INFORMATION"
+
     # Ingestion pipeline
     ingestion_chunk_size: int = 512
     ingestion_overlap: int = 50
