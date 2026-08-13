@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-08-13T14:15:32.043585+00:00",
+  "chunks": 33,
+  "questions": 18,
+  "model": {
+    "embedding": "intfloat/multilingual-e5-large",
+    "reranker": "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  },
+  "methods": {
+    "dense_only": {
+      "recall@1": 0.8889,
+      "recall@3": 0.8889,
+      "recall@5": 0.8889,
+      "mrr": 0.8889
+    },
+    "sparse_only": {
+      "recall@1": 0.9444,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 0.9722
+    },
+    "hybrid": {
+      "recall@1": 0.8889,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 0.9444
+    },
+    "hybrid_rerank": {
+      "recall@1": 0.8889,
+      "recall@3": 1.0,
+      "recall@5": 1.0,
+      "mrr": 0.9444
+    }
+  }
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 
 import pytest
@@ -11,6 +12,17 @@ from app.store.inmemory import InMemoryVectorStore
 
 _TOKEN_RE = re.compile(r"[a-z]+")
 _DIM = 128
+
+
+def pytest_collection_modifyitems(config, items) -> None:
+    """Skip integration-marked tests unless RUN_INTEGRATION=1 is set."""
+    if os.environ.get("RUN_INTEGRATION") == "1":
+        return
+    for item in items:
+        if "integration" in item.keywords:
+            item.add_marker(
+                pytest.mark.skip(reason="integration test; set RUN_INTEGRATION=1 to run")
+            )
 
 
 def _hash_index(token: str) -> int:

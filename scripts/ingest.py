@@ -32,9 +32,9 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = get_settings()
     store = QdrantStore(
-        url=settings.qdrant_url,
         collection=settings.qdrant_collection,
         vector_size=settings.models.embedding_dim,
+        url=settings.qdrant_url,
     )
     store.ensure_collection()
 

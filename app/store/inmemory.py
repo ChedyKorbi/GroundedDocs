@@ -59,6 +59,9 @@ class InMemoryVectorStore:
         """Return all stored points (test/diagnostic accessor)."""
         return list(self._points)
 
+    def all_points(self) -> list[VectorPoint]:
+        return list(self._points)
+
     def delete_by_document(self, document_id: str) -> bool:
         before = len(self._points)
         pairs = [

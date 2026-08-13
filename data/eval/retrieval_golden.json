@@ -1,0 +1,95 @@
+{
+  "description": "Retrieval-only golden set for the English sample corpus. Gold chunks are identified by document id + section-leaf substring (matches the structure-chunk section metadata).",
+  "questions": [
+    {
+      "id": "r01",
+      "question": "How many days of annual leave do employees accrue per year?",
+      "gold": [{"document_id": "employee-handbook", "section": "Annual Leave"}]
+    },
+    {
+      "id": "r02",
+      "question": "How long is the probation period for new hires at AcmeCorp?",
+      "gold": [{"document_id": "employee-handbook", "section": "Probation Period"}]
+    },
+    {
+      "id": "r03",
+      "question": "How many days per week can an employee work remotely after probation?",
+      "gold": [{"document_id": "employee-handbook", "section": "Remote Work Policy"}]
+    },
+    {
+      "id": "r04",
+      "question": "When are salaries reviewed at AcmeCorp?",
+      "gold": [{"document_id": "employee-handbook", "section": "Salary Review Cycle"}]
+    },
+    {
+      "id": "r05",
+      "question": "What is the maximum value of a gift an employee may accept?",
+      "gold": [{"document_id": "employee-handbook", "section": "Gifts and Entertainment"}]
+    },
+    {
+      "id": "r06",
+      "question": "How much notice is required when a manager resigns?",
+      "gold": [{"document_id": "employee-handbook", "section": "Leaving AcmeCorp"}]
+    },
+    {
+      "id": "r07",
+      "question": "What is the notice period for individual contributors leaving AcmeCorp?",
+      "gold": [{"document_id": "employee-handbook", "section": "Leaving AcmeCorp"}]
+    },
+    {
+      "id": "r08",
+      "question": "Who owns an incident end to end during a security incident?",
+      "gold": [{"document_id": "incident-response-playbook", "section": "Incident Commander"}]
+    },
+    {
+      "id": "r09",
+      "question": "What severity is assigned to a data breach or production outage?",
+      "gold": [{"document_id": "incident-response-playbook", "section": "Triage and Classification"}]
+    },
+    {
+      "id": "r10",
+      "question": "What must happen before any remediation action during an incident?",
+      "gold": [{"document_id": "incident-response-playbook", "section": "Containment and Eradication"}]
+    },
+    {
+      "id": "r11",
+      "question": "How quickly must a service return to production after an incident?",
+      "gold": [{"document_id": "incident-response-playbook", "section": "Recovery and Lessons Learned"}]
+    },
+    {
+      "id": "r12",
+      "question": "Within how many days of closure is a Lessons Learned review held?",
+      "gold": [{"document_id": "incident-response-playbook", "section": "Recovery and Lessons Learned"}]
+    },
+    {
+      "id": "r13",
+      "question": "What is required to access production data for accounts?",
+      "gold": [{"document_id": "security-policy", "section": "Passwords and Multi-Factor Authentication"}]
+    },
+    {
+      "id": "r14",
+      "question": "How long is customer personal information retained after a contract ends?",
+      "gold": [{"document_id": "security-policy", "section": "Data Retention"}]
+    },
+    {
+      "id": "r15",
+      "question": "Which data class includes customer personal information and source code?",
+      "gold": [{"document_id": "security-policy", "section": "Data Classification"}]
+    },
+    {
+      "id": "r16",
+      "question": "How quickly must a suspected policy breach be reported?",
+      "gold": [{"document_id": "security-policy", "section": "Incident Reporting"}]
+    },
+    {
+      "id": "r17",
+      "question": "What must employees use to access the corporate network remotely?",
+      "gold": [{"document_id": "security-policy", "section": "Remote Access"}]
+    },
+    {
+      "id": "r18",
+      "question": "Who grants access to AcmeCorp systems and on what basis?",
+      "gold": [{"document_id": "security-policy", "section": "Account Provisioning"}]
+    }
+  ]
+}

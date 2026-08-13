@@ -22,12 +22,15 @@ class QdrantStore:
 
     def __init__(
         self,
-        url: str,
         collection: str,
         vector_size: int,
+        url: str | None = None,
+        client: QdrantClient | None = None,
         distance: models.Distance = models.Distance.COSINE,
     ) -> None:
-        self.client = QdrantClient(url=url)
+        if (url is None) == (client is None):
+            raise ValueError("provide exactly one of `url` or `client`")
+        self.client = client or QdrantClient(url=str(url))
         self.collection = collection
         self.vector_size = vector_size
         self.distance = distance
@@ -88,7 +91,19 @@ class QdrantStore:
     def count(self) -> int:
         return self.client.count(collection_name=self.collection).count
 
-    def delete_by_document(self, document_id: str) -> int:
+    def all_points(self) -> list[VectorPoint]:
+        points = self.client.scroll(
+            collection_name=self.collection,
+            limit=10000,
+            with_vectors=False,
+            with_payload=True,
+        )[0]
+        return [
+            VectorPoint(id=str(point.id), vector=[], payload=point.payload or {})
+            for point in points
+        ]
+
+    def delete_by_document(self, document_id: str) -> bool:
         selector = models.FilterSelector(
             filter=models.Filter(
                 must=[
@@ -100,4 +115,4 @@ class QdrantStore:
         )
         result = self.client.delete(collection_name=self.collection, points_selector=selector)
         logger.info("deleted_document_chunks", extra={"document_id": document_id})
-        return getattr(result, "status", None) == "ok"
+        return bool(result)

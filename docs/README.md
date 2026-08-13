@@ -15,7 +15,7 @@ interfaces designed here. This trade-off is documented in every phase that touch
 |---|-------|-----|--------|
 | 0 | Foundations & Repo Scaffolding | [phase-0-foundations.md](phases/phase-0-foundations.md) | **Complete** |
 | 1 | Ingestion & Chunking Pipeline | [phase-1-ingestion.md](phases/phase-1-ingestion.md) | **Complete** |
-| 2 | Hybrid Retrieval & Ranking | phase-2-retrieval.md | Pending |
+| 2 | Hybrid Retrieval & Ranking | [phase-2-retrieval.md](phases/phase-2-retrieval.md) | **Complete** |
 | 3 | Grounded Generation & Citation Verification | phase-3-generation.md | Pending |
 | 4 | Evaluation Framework | phase-4-evaluation.md | Pending |
 | 5 | Production API & Observability | phase-5-api.md | Pending |

@@ -57,6 +57,14 @@ class Settings(BaseSettings):
 
     reranker_mode: str = "auto"  # auto | cross_encoder | llm_judge
 
+    # Hybrid retrieval
+    retrieval_dense_k: int = 20
+    retrieval_sparse_k: int = 20
+    retrieval_fused_k: int = 10
+    fusion_rrf_k: int = 60
+    fusion_dense_weight: float = 1.0
+    fusion_sparse_weight: float = 1.0
+
     # Ingestion pipeline
     ingestion_chunk_size: int = 512
     ingestion_overlap: int = 50
