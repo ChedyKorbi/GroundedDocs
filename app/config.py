@@ -57,6 +57,15 @@ class Settings(BaseSettings):
 
     reranker_mode: str = "auto"  # auto | cross_encoder | llm_judge
 
+    # Ingestion pipeline
+    ingestion_chunk_size: int = 512
+    ingestion_overlap: int = 50
+    ingestion_default_strategy: str = "structure"  # fixed | structure | semantic
+    dedup_threshold: float = 0.95
+    dedup_mode: str = "skip"  # skip | flag
+    dedup_scope: str = "all"  # all | same_document
+    dedup_top_k: int = 5
+
     models: ModelRegistry = ModelRegistry()
 
     @property
