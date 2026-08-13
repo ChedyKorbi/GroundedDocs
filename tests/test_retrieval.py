@@ -56,11 +56,13 @@ class TestSparseIndex:
 class TestRrfFusion:
     def test_union_and_weighted_ranking(self) -> None:
         dense = [("a", 0.9), ("b", 0.8), ("c", 0.7)]
-        sparse = [("c", 12.0), ("d", 10.0), ("a", 8.0)]
+        sparse = [("c", 12.0), ("d", 10.0), ("e", 9.0), ("a", 8.0)]
         fused = rrf_fuse(dense, sparse, k=10)
         ids = [hit.id for hit in fused]
-        assert set(ids) == {"a", "b", "c", "d"}
-        assert ids[0] == "c"  # rank 3 dense + rank 1 sparse > others
+        assert set(ids) == {"a", "b", "c", "d", "e"}
+        # c: sparse rank 1 (1/11) + dense rank 3 (1/13) > a: sparse rank 4
+        # (1/14) + dense rank 1 (1/11); asymmetric ranks -> no tie.
+        assert ids[0] == "c"
 
     def test_missing_in_one_list_contributes_zero(self) -> None:
         dense = [("a", 0.9)]
