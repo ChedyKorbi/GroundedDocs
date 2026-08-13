@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.config import get_settings
 from app.core.ingestion.dedup import Deduplicator
 from app.services.embeddings import EmbeddingService
-from app.services.ingestion import IngestionPipeline
+from app.services.ingestion import IngestionPipeline, IngestReport
 from app.store.qdrant import QdrantStore
 
 
@@ -62,7 +62,7 @@ def main(argv: list[str] | None = None) -> int:
         dedup=dedup,
     )
 
-    reports: list = []
+    reports: list[IngestReport] = []
     for path in args.paths:
         if path.is_dir():
             reports.extend(pipeline.ingest_directory(path))

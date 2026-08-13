@@ -124,6 +124,13 @@ def test_insufficient_information_path() -> None:
     assert result.confidence.composite == 0.0
 
 
+def test_sentinel_embedded_mid_answer_triggers_insufficient() -> None:
+    llm = _FakeLLM(complete_text="The context does not cover this. INSUFFICIENT_INFORMATION")
+    result = GenerationService(llm=llm).generate("Unanswerable?", _retrieval())
+    assert result.insufficient is True
+    assert result.answer == ""
+
+
 def test_unverified_citation_marks_unsupported_and_lowers_confidence() -> None:
     llm = _FakeLLM(
         complete_text="The claim is stated here. [1]",

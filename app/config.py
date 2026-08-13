@@ -23,6 +23,7 @@ class ModelRegistry(BaseModel):
     embedding_dim: int = 1024
     llm_provider: str = "groq"
     llm_model: str = "llama-3.3-70b-versatile"
+    judge_model: str = "llama-3.1-8b-instant"
     reranker_cross_encoder_id: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     reranker_llm_judge_model: str = "llama-3.3-70b-versatile"
 
@@ -51,6 +52,21 @@ class Settings(BaseSettings):
         default=None,
         validation_alias=AliasChoices(f"{ENV_PREFIX}GROQ_API_KEY", "GROQ_API_KEY"),
     )
+
+    # Comma-separated list of Groq API keys (round-robin). Each Groq key shares
+    # its organization's daily token budget, so keys from DIFFERENT
+    # organizations multiply the available quota for long eval runs.
+    groq_api_keys_raw: str = Field(
+        default="",
+        validation_alias=AliasChoices(f"{ENV_PREFIX}GROQ_API_KEYS", "GROQ_API_KEYS"),
+    )
+
+    @property
+    def effective_groq_keys(self) -> list[str]:
+        keys = [k.strip() for k in self.groq_api_keys_raw.split(",") if k.strip()]
+        if not keys and self.groq_api_key:
+            keys = [self.groq_api_key]
+        return keys
 
     qdrant_url: str = "http://localhost:6333"
     qdrant_collection: str = "groundeddocs_chunks"

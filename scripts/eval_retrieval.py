@@ -16,46 +16,35 @@ import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from qdrant_client import QdrantClient
+
 from app.config import get_settings
 from app.core.evaluation.recall import mrr, recall_at_k
+from app.core.evaluation.retrieval_eval import (
+    resolve_gold_chunks,
+)
 from app.core.retrieval.rerank import CrossEncoderReranker
 from app.core.retrieval.sparse import SparseIndex
 from app.services.embeddings import EmbeddingService
 from app.services.retrieval import HybridRetriever
-from app.store.qdrant import QdrantClient, QdrantStore
+from app.store.qdrant import QdrantStore
 
 GOLDEN_PATH = Path("data/eval/retrieval_golden.json")
 REPORT_DIR = Path("data/eval/reports")
 
 
-def resolve_gold_chunks(store: QdrantStore, golden) -> dict[str, set[str]]:
-    """Map question id -> set of chunk ids matching (document_id, section leaf).
-
-    The gold `section` is matched against the LAST component of the stored
-    heading path (e.g. "Incident Commander" matches ".../Roles/Incident
-    Commander"), which is precise when a section contains sub-headings.
-    """
-    resolved: dict[str, set[str]] = {}
-    for entry in golden["questions"]:
-        chunk_ids: set[str] = set()
-        for gold in entry["gold"]:
-            for point in store.all_points():
-                payload = point.payload
-                if payload.get("document_id") != gold["document_id"]:
-                    continue
-                section = (payload.get("metadata") or {}).get("section") or ""
-                leaf = section.split(" / ")[-1]
-                if leaf == gold["section"]:
-                    chunk_ids.add(point.id)
-        resolved[entry["id"]] = chunk_ids
-    return resolved
-
-
-def run_method(retriever: HybridRetriever, questions, gold_map, top_k, method) -> dict:
-    results = []
+def run_method(
+    retriever: HybridRetriever,
+    questions: list[dict[str, Any]],
+    gold_map: dict[str, set[str]],
+    top_k: int,
+    method: str,
+) -> dict[str, Any]:
+    results: list[dict[str, Any]] = []
     for entry in questions:
         result = retriever.retrieve(
             entry["question"],
@@ -113,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
 
     questions = golden["questions"]
 
-    def make_retriever(reranker=None) -> HybridRetriever:
+    def make_retriever(reranker: Any = None) -> HybridRetriever:
         return HybridRetriever(
             store=store,
             embedder=embedder,
@@ -130,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
 
     start = time.perf_counter()
     base = make_retriever()
-    methods: dict[str, dict] = {
+    methods: dict[str, dict[str, Any]] = {
         "dense_only": run_method(base, questions, gold_map, args.top_k, "dense_only"),
         "sparse_only": run_method(base, questions, gold_map, args.top_k, "sparse_only"),
         "hybrid": run_method(base, questions, gold_map, args.top_k, "hybrid"),

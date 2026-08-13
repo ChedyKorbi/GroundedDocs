@@ -68,8 +68,10 @@ class GenerationService:
         llm: LLMClient,
         context_k: int = 6,
         insufficient_sentinel: str = INSUFFICIENT_SENTINEL,
+        verify_llm: LLMClient | None = None,
     ) -> None:
         self.llm = llm
+        self.verify_llm = verify_llm or llm
         self.context_k = context_k
         self.sentinel = insufficient_sentinel
 
@@ -82,11 +84,7 @@ class GenerationService:
         answer = response.text.strip()
         latency_ms = (time.perf_counter() - start) * 1000.0
 
-        if (
-            not answer
-            or answer.upper() == self.sentinel
-            or answer.upper().startswith(self.sentinel)
-        ):
+        if not answer or self.sentinel.upper() in answer.upper():
             return GenerationResult(
                 question=question,
                 answer="",
@@ -188,7 +186,7 @@ class GenerationService:
     ) -> list[CitationCheck]:
         claim = strip_citation_markers(sentence)
         try:
-            verdict = self.llm.complete_json(
+            verdict = self.verify_llm.complete_json(
                 VERIFY_SYSTEM_PROMPT, build_verify_prompt(claim, passages)
             )
             raw_checks = verdict.get("checks", [])
@@ -232,10 +230,10 @@ def _model_versions() -> dict[str, str]:
 def build_generation_service() -> GenerationService:
     """Construct the generation service from settings (single wiring point)."""
     settings = get_settings()
-    if not settings.groq_api_key:
+    if not settings.effective_groq_keys:
         raise RuntimeError("GROQ_API_KEY required for generation")
     llm = LLMClient(
-        api_key=settings.groq_api_key,
+        api_keys=settings.effective_groq_keys,
         model=settings.models.llm_model,
         temperature=settings.generation_temperature,
         max_tokens=settings.generation_max_tokens,
