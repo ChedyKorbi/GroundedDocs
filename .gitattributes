@@ -1,0 +1,10 @@
+# Normalize line endings to LF everywhere (Docker/Linux CI builds).
+* text=auto eol=lf
+
+# Binary files
+*.docx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

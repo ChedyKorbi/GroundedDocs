@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+wheels/
+.python-version
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environments / secrets
+.env
+.env.*
+!.env.example
+
+# Test / tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.mypy_cache
+.coverage
+htmlcov/
+coverage.xml
+
+# Node / frontend (Phase 8)
+node_modules/
+.next/
+out/
+frontend/.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime data
+data/qdrant/
+data/chroma/
+logs/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
