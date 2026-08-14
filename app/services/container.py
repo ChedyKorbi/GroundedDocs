@@ -26,6 +26,21 @@ from app.store.qdrant import QdrantStore
 from app.store.querylog import QueryLog
 
 
+def resolve_active_collection(settings: Settings) -> str:
+    """Resolve the collection currently behind the versioned alias.
+
+    Falls back to the plain configured collection name before the first
+    versioned reindex (or if no alias exists yet).
+    """
+    client = QdrantClient(url=settings.qdrant_url)
+    index = IndexManager(
+        client,
+        base_collection=settings.qdrant_collection,
+        alias=f"{settings.qdrant_collection}-active",
+    )
+    return index.active_collection() or settings.qdrant_collection
+
+
 class AppServices:
     """Holds the long-lived service instances the API depends on."""
 

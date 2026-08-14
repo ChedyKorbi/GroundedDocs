@@ -1,0 +1,50 @@
+name: Integration + Eval Gate
+
+# Runs the real-stack suite (Qdrant + Groq) and the evaluation quality gate on
+# main pushes. Skipped when the GROQ_API_KEY secret is not configured.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    name: Integration tests + eval gate
+    runs-on: ubuntu-latest
+    if: ${{ secrets.GROQ_API_KEY != '' }}
+    services:
+      qdrant:
+        image: qdrant/qdrant:v1.19.0
+        ports:
+          - 6333:6333
+        options: >-
+          --health-cmd "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      RUN_INTEGRATION: "1"
+      GROUNDEDDOCS_QDRANT_URL: http://localhost:6333
+      HF_HOME: /tmp/hf-cache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cache HF models
+        uses: actions/cache@v4
+        with:
+          path: /tmp/hf-cache
+          key: hf-models-${{ runner.os }}-e5-crossenc
+      - name: Install dependencies
+        run: uv sync --frozen --extra ml
+      - name: Seed sample corpus
+        run: uv run python scripts/seed.py
+      - name: Integration tests
+        run: uv run pytest -m integration -q
+      - name: Evaluation gate (faithfulness + citation accuracy)
+        run: uv run python scripts/eval_gate.py --limit 12 --faithfulness 0.85 --citation 0.80

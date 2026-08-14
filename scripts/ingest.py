@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.config import get_settings
 from app.core.ingestion.dedup import Deduplicator
+from app.services.container import resolve_active_collection
 from app.services.embeddings import EmbeddingService
 from app.services.ingestion import IngestionPipeline, IngestReport
 from app.store.qdrant import QdrantStore
@@ -32,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = get_settings()
     store = QdrantStore(
-        collection=settings.qdrant_collection,
+        collection=resolve_active_collection(settings),
         vector_size=settings.models.embedding_dim,
         url=settings.qdrant_url,
     )

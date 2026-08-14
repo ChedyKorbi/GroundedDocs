@@ -29,6 +29,7 @@ from app.core.evaluation.retrieval_eval import (
 )
 from app.core.retrieval.rerank import CrossEncoderReranker
 from app.core.retrieval.sparse import SparseIndex
+from app.services.container import resolve_active_collection
 from app.services.embeddings import EmbeddingService
 from app.services.retrieval import HybridRetriever
 from app.store.qdrant import QdrantStore
@@ -84,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     settings = get_settings()
     client = QdrantClient(url=settings.qdrant_url)
     store = QdrantStore(
-        collection=settings.qdrant_collection,
+        collection=resolve_active_collection(settings),
         vector_size=settings.models.embedding_dim,
         client=client,
     )

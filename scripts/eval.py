@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from qdrant_client import QdrantClient
 
-from app.config import Settings, get_settings
+from app.config import Settings
 from app.core.evaluation.judges import FaithfulnessJudge, RelevanceJudge
 from app.core.evaluation.recall import mrr, recall_at_k
 from app.core.evaluation.retrieval_eval import (
@@ -37,6 +37,7 @@ from app.core.evaluation.retrieval_eval import (
 )
 from app.core.retrieval.rerank import CrossEncoderReranker
 from app.core.retrieval.sparse import SparseIndex
+from app.services.container import AppServices
 from app.services.embeddings import EmbeddingService
 from app.services.generation import GenerationResult, GenerationService
 from app.services.ingestion import IngestionPipeline
@@ -101,31 +102,22 @@ class EvalContext:
 
 
 def build_context() -> EvalContext:
-    settings = get_settings()
-    client = QdrantClient(url=settings.qdrant_url)
-    store = QdrantStore(
-        collection=settings.qdrant_collection,
-        vector_size=settings.models.embedding_dim,
-        client=client,
-    )
-    store.ensure_collection()
-    embedder = EmbeddingService(model_id=settings.models.embedding_model_id)
-    sparse = SparseIndex()
-    sparse.build(store.all_points())
-    llm = LLMClient(
-        api_keys=settings.effective_groq_keys,
-        model=settings.models.llm_model,
-        temperature=settings.generation_temperature,
-        max_tokens=settings.generation_max_tokens,
-    )
+    services = AppServices()
     judge_llm = LLMClient(
-        api_keys=settings.effective_groq_keys,
-        model=settings.models.judge_model,
+        api_keys=services.settings.effective_groq_keys,
+        model=services.settings.models.judge_model,
         temperature=0.0,
         max_tokens=512,
     )
-    generation = GenerationService(llm=llm, verify_llm=judge_llm)
-    return EvalContext(settings, store, embedder, sparse, llm, judge_llm, generation)
+    return EvalContext(
+        settings=services.settings,
+        store=services.store,
+        embedder=services.embedder,
+        sparse=services.sparse,
+        llm=services.generation.llm,
+        judge_llm=judge_llm,
+        generation=services.generation,
+    )
 
 
 def evaluate_question(
@@ -432,7 +424,7 @@ def run_chunking() -> dict[str, Any]:
     ctx = build_context()
     client = QdrantClient(url=ctx.settings.qdrant_url)
     source = QdrantStore(
-        collection=ctx.settings.qdrant_collection,
+        collection=ctx.store.collection,
         vector_size=ctx.settings.models.embedding_dim,
         client=client,
     )

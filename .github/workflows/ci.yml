@@ -15,11 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --extra ml
       - name: Lint
         run: uv run ruff check .
       - name: Format check
@@ -31,13 +33,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --extra ml
       - name: Type check
-        run: uv run mypy app
+        run: uv run mypy app scripts
 
   test:
     name: Tests (pytest)
@@ -45,12 +49,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: uv sync --frozen
-      - name: Run tests
+        run: uv sync --frozen --extra ml
+      - name: Run unit tests
         run: uv run pytest
 
   security:
@@ -59,11 +65,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --extra ml
       - name: Audit dependencies
         run: uv run pip-audit
 
@@ -72,5 +80,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build image
-        run: docker build -t groundeddocs:ci .
+      - name: Set up BuildKit cache
+        uses: docker/setup-buildx-action@v3
+      - name: Build image (CPU torch)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: groundeddocs:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
