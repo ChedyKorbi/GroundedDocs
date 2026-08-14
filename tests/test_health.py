@@ -1,4 +1,4 @@
-"""Phase 0 smoke tests: app boots, health responds, tracing headers flow."""
+"""API smoke tests: app boots, health responds, tracing headers flow."""
 
 from fastapi.testclient import TestClient
 
@@ -12,8 +12,12 @@ def test_health_ok() -> None:
     response = client.get("/health")
     assert response.status_code == 200
     body = response.json()
-    assert body["status"] == "ok"
+    # Without live infrastructure (Qdrant) the container reports degraded but
+    # still responds 200 with the stable envelope.
+    assert body["status"] in {"ok", "degraded"}
     assert body["service"] == "GroundedDocs"
+    assert "version" in body
+    assert "qdrant" in body
 
 
 def test_request_id_generated() -> None:
@@ -30,7 +34,15 @@ def test_openapi_available() -> None:
     response = client.get("/openapi.json")
     assert response.status_code == 200
     paths = response.json()["paths"]
-    assert "/health" in paths
+    for path in ("/health", "/ask", "/ingest", "/documents", "/metrics", "/reindex"):
+        assert path in paths
+
+
+def test_protected_route_returns_structured_503_without_infra() -> None:
+    response = client.post("/ask", json={"question": "test"})
+    assert response.status_code in {503, 401}
+    body = response.json()
+    assert "error" in body
 
 
 def test_model_registry_defaults() -> None:

@@ -8,6 +8,7 @@ a hallucinated guess. Model versions are stamped on every result for traceabilit
 
 from __future__ import annotations
 
+import json
 import time
 from typing import Any
 
@@ -56,6 +57,10 @@ class GenerationResult(BaseModel):
     llm_model: str
     input_tokens: int = 0
     output_tokens: int = 0
+    generate_ms: float = 0.0
+    verify_ms: float = 0.0
+    verify_input_tokens: int = 0
+    verify_output_tokens: int = 0
     latency_ms: float = 0.0
     model_versions: dict[str, str] = Field(default_factory=dict)
 
@@ -80,7 +85,9 @@ class GenerationService:
 
         contexts = [(c.chunk_id, c.text) for c in retrieval.chunks[: self.context_k]]
         user_prompt = build_grounded_user_prompt(question, contexts)
+        t_gen = time.perf_counter()
         response = self.llm.complete(GROUNDED_SYSTEM_PROMPT, user_prompt)
+        generate_ms = (time.perf_counter() - t_gen) * 1000.0
         answer = response.text.strip()
         latency_ms = (time.perf_counter() - start) * 1000.0
 
@@ -92,6 +99,7 @@ class GenerationService:
                 llm_model=self.llm.model,
                 input_tokens=response.input_tokens,
                 output_tokens=response.output_tokens,
+                generate_ms=round(generate_ms, 2),
                 latency_ms=round(latency_ms, 2),
                 model_versions=_model_versions(),
             )
@@ -107,6 +115,8 @@ class GenerationService:
         citation_to_sentence: dict[int, list[int]] = {}
         all_checks: dict[int, list[CitationCheck]] = {}
 
+        verify_ms = 0.0
+        verify_tokens = [0, 0]
         for sentence_index, sentence in enumerate(sentences):
             cited = sentence_citations(sentence)
             checks: list[CitationCheck] = []
@@ -114,7 +124,9 @@ class GenerationService:
             if cited:
                 passages = {idx: contexts[idx - 1][1] for idx in cited if idx in chunks_by_index}
                 if passages:
-                    checks = self._verify_claim(sentence, passages, chunks_by_index)
+                    t_v = time.perf_counter()
+                    checks = self._verify_claim(sentence, passages, chunks_by_index, verify_tokens)
+                    verify_ms += (time.perf_counter() - t_v) * 1000.0
                 for idx in cited:
                     if idx in chunks_by_index:
                         valid_cited.append(idx)
@@ -161,6 +173,10 @@ class GenerationService:
             llm_model=self.llm.model,
             input_tokens=response.input_tokens,
             output_tokens=response.output_tokens,
+            generate_ms=round(generate_ms, 2),
+            verify_ms=round(verify_ms, 2),
+            verify_input_tokens=verify_tokens[0],
+            verify_output_tokens=verify_tokens[1],
             latency_ms=round(latency_ms, 2),
             model_versions=_model_versions(),
         )
@@ -183,13 +199,17 @@ class GenerationService:
         sentence: str,
         passages: dict[int, str],
         chunks_by_index: dict[int, dict[str, Any]],
+        token_accumulator: list[int] | None = None,
     ) -> list[CitationCheck]:
         claim = strip_citation_markers(sentence)
         try:
-            verdict = self.verify_llm.complete_json(
-                VERIFY_SYSTEM_PROMPT, build_verify_prompt(claim, passages)
+            response = self.verify_llm.complete(
+                VERIFY_SYSTEM_PROMPT, build_verify_prompt(claim, passages), json_mode=True
             )
-            raw_checks = verdict.get("checks", [])
+            if token_accumulator:
+                token_accumulator[0] += response.input_tokens
+                token_accumulator[1] += response.output_tokens
+            raw_checks = json.loads(response.text).get("checks", [])
         except Exception as exc:  # noqa: BLE001
             logger.warning("verification_failed", extra={"error": str(exc)})
             return [

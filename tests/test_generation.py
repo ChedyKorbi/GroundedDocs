@@ -81,6 +81,12 @@ class _FakeLLM:
         )
 
     def complete(self, system, user, json_mode=False, max_tokens=None) -> LLMResponse:
+        if json_mode:
+            import json
+
+            return LLMResponse(
+                text=json.dumps({"checks": self._json_checks}), input_tokens=10, output_tokens=15
+            )
         return LLMResponse(text=self._complete_text, input_tokens=10, output_tokens=15)
 
     def complete_json(self, system, user) -> dict:
@@ -143,8 +149,10 @@ def test_unverified_citation_marks_unsupported_and_lowers_confidence() -> None:
 
 def test_verification_failure_is_unsupported_not_crash() -> None:
     class BrokenJSON(_FakeLLM):
-        def complete_json(self, system, user) -> dict:
-            raise ValueError("malformed")
+        def complete(self, system, user, json_mode=False, max_tokens=None) -> LLMResponse:
+            if json_mode:
+                raise ValueError("malformed")
+            return LLMResponse(text=self._complete_text, input_tokens=10, output_tokens=15)
 
     result = GenerationService(llm=BrokenJSON(complete_text="Claim. [1]")).generate(
         "Q?", _retrieval()

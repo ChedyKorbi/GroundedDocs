@@ -40,6 +40,7 @@ Thumbs.db
 # Runtime data
 data/qdrant/
 data/chroma/
+data/query_log.db
 logs/
 *.log
 

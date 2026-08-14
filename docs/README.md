@@ -18,7 +18,7 @@ interfaces designed here. This trade-off is documented in every phase that touch
 | 2 | Hybrid Retrieval & Ranking | [phase-2-retrieval.md](phases/phase-2-retrieval.md) | **Complete** |
 | 3 | Grounded Generation & Citation Verification | [phase-3-generation.md](phases/phase-3-generation.md) | **Complete** |
 | 4 | Evaluation Framework | [phase-4-evaluation.md](phases/phase-4-evaluation.md) | **Complete** |
-| 5 | Production API & Observability | phase-5-api.md | Pending |
+| 5 | Production API & Observability | [phase-5-api.md](phases/phase-5-api.md) | **Complete** |
 | 6 | Containerization & One-Command Deployment | phase-6-containerization.md | Pending |
 | 7 | CI/CD Quality Gates | phase-7-ci.md | Pending |
 | 8 | Dashboard (Next.js) | phase-8-dashboard.md | Pending |

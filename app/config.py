@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     # service runs open (local development only).
     api_key: str | None = None
 
+    # Rate limiting (Phase 5)
+    api_rate_limit_max: int = 60
+    api_rate_limit_window_seconds: int = 60
+
+    # Observability
+    querylog_path: str = "data/query_log.db"
+
     log_level: str = "INFO"
 
     groq_api_key: str | None = Field(

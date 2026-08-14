@@ -38,6 +38,7 @@ class RetrievalResult(BaseModel):
     dense_count: int
     sparse_count: int
     reranker: str | None = None
+    latencies: dict[str, float] = Field(default_factory=dict)
 
 
 class HybridRetriever:
@@ -76,17 +77,27 @@ class HybridRetriever:
         dense_only: bool = False,
         sparse_only: bool = False,
     ) -> RetrievalResult:
+        import time as _time
+
         final_k = top_k or self.fused_k
+        latencies: dict[str, float] = {}
 
         dense_hits: list[SearchHit] = []
         if not sparse_only:
+            t0 = _time.perf_counter()
             query_vector = self.embedder.embed_queries([query])[0]
+            latencies["embed_ms"] = (_time.perf_counter() - t0) * 1000.0
+            t0 = _time.perf_counter()
             dense_hits = self.store.search(query_vector, limit=self.dense_k)
+            latencies["dense_ms"] = (_time.perf_counter() - t0) * 1000.0
 
         sparse_hits: list[SearchHit] = []
         if not dense_only:
+            t0 = _time.perf_counter()
             sparse_hits = self.sparse.search(query, limit=self.sparse_k)
+            latencies["sparse_ms"] = (_time.perf_counter() - t0) * 1000.0
 
+        t0 = _time.perf_counter()
         if dense_only:
             selected: list[tuple[str, float, dict[str, Any], float | None, float | None]] = [
                 (hit.id, hit.score, hit.payload, hit.score, None) for hit in dense_hits[:final_k]
@@ -121,6 +132,8 @@ class HybridRetriever:
                 for hit in fused_hits
             ]
 
+        latencies["fusion_ms"] = (_time.perf_counter() - t0) * 1000.0
+
         chunks = [
             RetrievedChunk(
                 chunk_id=chunk_id,
@@ -134,10 +147,12 @@ class HybridRetriever:
         ]
 
         if self.reranker is not None and chunks:
+            t0 = _time.perf_counter()
             rerank_scores = self.reranker.rerank(
                 query,
                 [SearchHit(id=c.chunk_id, score=0.0, payload={"text": c.text}) for c in chunks],
             )
+            latencies["rerank_ms"] = (_time.perf_counter() - t0) * 1000.0
             for chunk, score in zip(chunks, rerank_scores, strict=True):
                 chunk.rerank_score = score
             chunks.sort(key=lambda c: c.rerank_score or 0.0, reverse=True)
@@ -158,6 +173,7 @@ class HybridRetriever:
             dense_count=len(dense_hits),
             sparse_count=len(sparse_hits),
             reranker=self.reranker_name,
+            latencies={k: round(v, 2) for k, v in latencies.items()},
         )
 
 
