@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, FileStack, Gauge, MessageSquare } from "lucide-react";
+import { BookOpen, FileStack, Gauge, Info, MessageSquare } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 const NAV = [
   { href: "/", label: "Ask", icon: MessageSquare },
   { href: "/documents", label: "Documents", icon: FileStack },
   { href: "/performance", label: "Performance", icon: Gauge },
+  { href: "/about", label: "About", icon: Info },
 ];
 
 export function Sidebar() {

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GroundedDocs — LinkedIn carousel cards</title>
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --surface: #141414;
+    --border: #262626;
+    --text: #FAFAFA;
+    --muted: #A1A1AA;
+    --accent: #6366F1;
+    --ok: #10B981;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #050505; display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 32px; font-family: Inter, system-ui, sans-serif; }
+  .card {
+    width: 1080px; height: 1350px; background: var(--bg); color: var(--text);
+    position: relative; padding: 80px; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: center;
+    font-size: 30px; line-height: 1.35;
+  }
+  .wordmark { position: absolute; top: 48px; left: 80px; font-weight: 600; font-size: 22px; letter-spacing: 0.08em; color: var(--text); }
+  .wordmark::after { content: "\2022"; color: var(--accent); margin-left: 6px; }
+  .card.right .wordmark { left: auto; right: 80px; }
+  h1 { font-family: Jost, "Avenir Next", Inter, sans-serif; font-weight: 600; letter-spacing: -0.01em; font-size: 64px; line-height: 1.05; }
+  h1 .accent { color: var(--accent); }
+  .sub { margin-top: 28px; color: var(--muted); font-size: 30px; max-width: 820px; }
+  .label { color: var(--muted); font-size: 26px; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .emerald { color: var(--ok); }
+  .accent { color: var(--accent); }
+  .rule { width: 140px; height: 6px; background: var(--accent); margin-top: 40px; }
+  .rows { display: flex; flex-direction: column; gap: 30px; margin-top: 40px; }
+  .row { display: flex; align-items: baseline; gap: 24px; border-bottom: 1px solid var(--border); padding-bottom: 24px; }
+  .row .idx { font-family: "JetBrains Mono", monospace; color: var(--accent); font-size: 24px; width: 60px; }
+  .row b { font-weight: 600; font-size: 32px; }
+  .row span { color: var(--muted); font-size: 26px; margin-left: auto; text-align: right; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 48px; }
+  .box { border: 1px solid var(--border); background: var(--surface); padding: 26px 30px; text-align: center; }
+  .box.accent { border-color: var(--accent); }
+  .box b { font-size: 26px; font-weight: 600; display: block; }
+  .box small { display: block; margin-top: 8px; color: var(--muted); font-family: "JetBrains Mono", monospace; font-size: 18px; }
+  .arrow { color: var(--muted); font-size: 28px; }
+  .timeline { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 48px; }
+  .chip { border: 1px solid var(--border); padding: 14px 22px; font-family: "JetBrains Mono", monospace; font-size: 22px; color: var(--text); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 48px; }
+  .stat { border: 1px solid var(--border); background: var(--surface); padding: 34px 30px; }
+  .stat .val { font-family: "JetBrains Mono", monospace; font-size: 64px; font-weight: 600; color: var(--ok); line-height: 1; }
+  .stat .lbl { margin-top: 14px; font-weight: 600; font-size: 26px; }
+  .stat .ctx { margin-top: 6px; color: var(--muted); font-size: 22px; }
+  .stat.hl { border-color: var(--accent); }
+  .cta { margin-top: 64px; display: inline-flex; align-self: flex-start; background: var(--accent); color: #fff; font-weight: 600; font-size: 32px; padding: 26px 44px; border-radius: 8px; }
+  .note { color: var(--muted); font-size: 22px; margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<!-- CARD 1 — Hook -->
+<div class="card">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>RAG that has to <span class="accent">prove</span> every answer.</h1>
+  <div class="rule"></div>
+  <p class="sub">GroundedDocs — hybrid retrieval with verified citations, not vibes.</p>
+</div>
+
+<!-- CARD 2 — Problem -->
+<div class="card">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>Naive RAG breaks in four predictable ways.</h1>
+  <div class="rows">
+    <div class="row"><span class="idx">01</span><b>Hallucination</b><span>the model answers anyway</span></div>
+    <div class="row"><span class="idx">02</span><b>No citations</b><span>you can&rsquo;t check the source</span></div>
+    <div class="row"><span class="idx">03</span><b>Single-language</b><span>the docs aren&rsquo;t English-only</span></div>
+    <div class="row"><span class="idx">04</span><b>No evaluation</b><span>quality is a feeling, not a number</span></div>
+  </div>
+</div>
+
+<!-- CARD 3 — Architecture -->
+<div class="card">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>One pipeline, end to end.</h1>
+  <div class="flow">
+    <div class="box"><b>Ingest &amp; chunk</b><small>3 strategies</small></div><span class="arrow">&rarr;</span>
+    <div class="box"><b>Hybrid retrieval</b><small>dense + BM25 &rarr; RRF</small></div><span class="arrow">&rarr;</span>
+    <div class="box"><b>Rerank</b><small>cross-encoder</small></div><span class="arrow">&rarr;</span>
+    <div class="box"><b>Grounded generation</b><small>citations [n]</small></div><span class="arrow">&rarr;</span>
+    <div class="box accent"><b>Citation verification</b><small>claim &times; passage, judge-checked</small></div><span class="arrow">&rarr;</span>
+    <div class="box"><b>Evaluation</b><small>golden set</small></div>
+  </div>
+</div>
+
+<!-- CARD 4 — Build phases -->
+<div class="card">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>Built as 10 documented phases.</h1>
+  <p class="sub">Each one tested before the next. Nothing is asserted &mdash; it&rsquo;s measured.</p>
+  <div class="timeline">
+    <div class="chip">Foundations</div><div class="chip">Ingestion</div><div class="chip">Hybrid retrieval</div><div class="chip">Grounded generation</div><div class="chip">Evaluation</div><div class="chip">Production API</div><div class="chip">Containerization</div><div class="chip">CI gates</div><div class="chip">Dashboard</div><div class="chip">Polish</div>
+  </div>
+</div>
+
+<!-- CARD 5 — Results -->
+<div class="card">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>Measured, <span class="accent">not claimed.</span></h1>
+  <div class="stats">
+    <div class="stat"><div class="val">96.3%</div><div class="lbl">Faithfulness</div><div class="ctx">48-question golden set</div></div>
+    <div class="stat"><div class="val">88.2%</div><div class="lbl">Citation accuracy</div><div class="ctx">verified supported citations</div></div>
+    <div class="stat"><div class="val">100%</div><div class="lbl">Recall@3</div><div class="ctx">vs 88.9% dense-only</div></div>
+    <div class="stat hl"><div class="val">100%</div><div class="lbl">Correct refusal</div><div class="ctx">unanswerable &mdash; 0% hallucinated</div></div>
+    <div class="stat"><div class="val">100%</div><div class="lbl">Judge&harr;human</div><div class="ctx">both fabricated answers caught</div></div>
+    <div class="stat"><div class="val">501ms</div><div class="lbl">Generation p50</div><div class="ctx">per answer, live</div></div>
+  </div>
+</div>
+
+<!-- CARD 6 — Production engineering -->
+<div class="card">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>&ldquo;Production&rdquo; means the boring things are done.</h1>
+  <div class="rows">
+    <div class="row"><span class="idx">01</span><b>Docker + Compose</b><span>API + Qdrant, seed-on-boot, health checks</span></div>
+    <div class="row"><span class="idx">02</span><b>CI with an eval gate</b><span>107 tests; main fails below 85% / 80%</span></div>
+    <div class="row"><span class="idx">03</span><b>Observability</b><span>stage latency, tokens + cost, p50/p95</span></div>
+    <div class="row"><span class="idx">04</span><b>Zero-downtime reindex</b><span>versioned collections, atomic alias swap</span></div>
+  </div>
+</div>
+
+<!-- CARD 7 — Gulf-market relevance -->
+<div class="card">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>Built to the <span class="accent">bar</span> GCC enterprise-AI teams actually set.</h1>
+  <div class="rows">
+    <div class="row"><span class="idx">01</span><b>Evaluation before claims</b><span>every capability has a number</span></div>
+    <div class="row"><span class="idx">02</span><b>Observability, first-class</b><span>reliability, not polish</span></div>
+    <div class="row"><span class="idx">03</span><b>Language-agnostic core</b><span>multilingual embeddings by design</span></div>
+  </div>
+  <p class="note">The signals SDAIA / NEOM / Aramco / STC hiring panels look for.</p>
+</div>
+
+<!-- CARD 8 — CTA -->
+<div class="card right">
+  <div class="wordmark">GroundedDocs</div>
+  <h1>See the instrument.</h1>
+  <p class="sub">Repo with architecture docs, evaluation reports, and a one-command stack. Live dashboard with citations, confidence, and telemetry.</p>
+  <div class="cta">github.com/ChedyKorbi/GroundedDocs</div>
+</div>
+
+</body>
+</html>
