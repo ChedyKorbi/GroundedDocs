@@ -254,18 +254,21 @@ def health(request: Request) -> HealthResponse:
     settings = get_settings()
     services = getattr(request.app.state, "services", None)
     qdrant_ok = False
+    model_ready = False
     index_chunks: int | None = None
-    if services is not None:
+    if isinstance(services, AppServices):
         try:
             index_chunks = services.store.count()
             qdrant_ok = True
         except Exception:  # noqa: BLE001
             qdrant_ok = False
+        model_ready = services.model_ready()
     return HealthResponse(
-        status="ok" if qdrant_ok else "degraded",
+        status="ok" if qdrant_ok and model_ready else "degraded",
         service=settings.app_name,
         version=settings.app_version,
         qdrant=qdrant_ok,
+        model_ready=model_ready,
         index_chunks=index_chunks,
     )
 

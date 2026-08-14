@@ -29,12 +29,23 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     """Build services at startup; failures are non-fatal.
 
     /health reports degraded and protected routes return 503 with a clear
-    message until infrastructure is available.
+    message until infrastructure is available. When the index is empty and
+    SEED_ON_BOOT is enabled, the sample corpus is auto-seeded.
     """
     try:
-        _app.state.services = AppServices()
+        services = AppServices()
+        _app.state.services = services
         _app.state.services_error = None
         logger.info("services_initialized")
+        if settings.seed_on_boot and services.store.count() == 0:
+            reports = services.seed_samples()
+            logger.info(
+                "seed_on_boot",
+                extra={
+                    "inserted": sum(r["inserted"] for r in reports),
+                    "chunks": services.store.count(),
+                },
+            )
     except Exception as exc:  # noqa: BLE001
         _app.state.services = None
         _app.state.services_error = str(exc)

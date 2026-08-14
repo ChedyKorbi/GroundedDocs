@@ -130,9 +130,15 @@ Response `200`:
 
 Response `200` (always):
 ```json
-{"status": "ok|degraded", "service": "GroundedDocs", "version": "0.1.0", "qdrant": true, "index_chunks": 33}
+{"status": "ok|degraded", "service": "GroundedDocs", "version": "0.1.0",
+ "qdrant": true, "model_ready": true, "index_chunks": 33}
 ```
+
+`status` is `ok` only when both Qdrant is reachable AND the embedding model is
+ready; otherwise `degraded` (liveness still 200).
 
 ## Revision log
 
+- **2026-08-14** — v1 rev 2: `/health` adds `model_ready` (readiness now
+  includes embedding model, not just Qdrant).
 - **2026-08-13** — v1 frozen (Phase 5).

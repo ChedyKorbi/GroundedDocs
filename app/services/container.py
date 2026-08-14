@@ -8,6 +8,7 @@ query log, and rate limiter, and exposes zero-downtime reindex.
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from typing import Any
 
 from qdrant_client import QdrantClient
@@ -38,6 +39,7 @@ class AppServices:
         )
         self.embedder = EmbeddingService(model_id=self.settings.models.embedding_model_id)
         self.querylog = QueryLog(self.settings.querylog_path)
+        self._model_ready: bool | None = None
 
         self._active = self._resolve_active()
         self.store = self._make_store(self._active)
@@ -100,6 +102,40 @@ class AppServices:
 
     def active_collection(self) -> str:
         return self._active
+
+    def model_ready(self) -> bool:
+        """Lazily probe embedding model readiness (checked once, then cached)."""
+        if self._model_ready is None:
+            try:
+                self.embedder.embed_queries(["ping"])
+                self._model_ready = True
+            except Exception:  # noqa: BLE001
+                self._model_ready = False
+        return self._model_ready
+
+    def seed_samples(self) -> list[dict[str, Any]]:
+        """Ingest the sample corpus when the index is empty (one-command startup)."""
+        from app.core.ingestion.dedup import Deduplicator
+        from app.services.ingestion import IngestionPipeline
+
+        settings = self.settings
+        pipeline = IngestionPipeline(
+            embedder=self.embedder,
+            store=self.store,
+            chunk_size=settings.ingestion_chunk_size,
+            overlap=settings.ingestion_overlap,
+            default_strategy=settings.ingestion_default_strategy,
+            dedup=Deduplicator(
+                store=self.store,
+                threshold=settings.dedup_threshold,
+                mode=settings.dedup_mode,
+                scope=settings.dedup_scope,
+                top_k=settings.dedup_top_k,
+            ),
+        )
+        reports = pipeline.ingest_directory(Path(settings.seed_samples_dir))
+        self.refresh_sparse()
+        return [r.model_dump(mode="json") for r in reports]
 
     def documents(self) -> list[dict[str, Any]]:
         counts: dict[str, dict[str, Any]] = {}

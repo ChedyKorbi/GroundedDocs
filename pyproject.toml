@@ -31,6 +31,16 @@ ml = [
     "sentence-transformers>=5.6,<6.0",
 ]
 
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+# Force the CPU-only torch wheel everywhere (incl. the Linux Docker image);
+# CUDA wheels add ~3GB and this deployment runs on CPU.
+torch = { index = "pytorch-cpu" }
+
 [dependency-groups]
 dev = [
     "pytest>=9.0,<10.0",

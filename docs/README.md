@@ -19,7 +19,7 @@ interfaces designed here. This trade-off is documented in every phase that touch
 | 3 | Grounded Generation & Citation Verification | [phase-3-generation.md](phases/phase-3-generation.md) | **Complete** |
 | 4 | Evaluation Framework | [phase-4-evaluation.md](phases/phase-4-evaluation.md) | **Complete** |
 | 5 | Production API & Observability | [phase-5-api.md](phases/phase-5-api.md) | **Complete** |
-| 6 | Containerization & One-Command Deployment | phase-6-containerization.md | Pending |
+| 6 | Containerization & One-Command Deployment | [phase-6-containerization.md](phases/phase-6-containerization.md) | **Complete** (image rebuild pending) |
 | 7 | CI/CD Quality Gates | phase-7-ci.md | Pending |
 | 8 | Dashboard (Next.js) | phase-8-dashboard.md | Pending |
 | 9 | Polish, Documentation & Case Study | phase-9-polish.md | Pending |

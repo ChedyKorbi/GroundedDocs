@@ -1,0 +1,21 @@
+# Build context exclusions for the Docker image.
+.git
+.github
+.venv
+**/__pycache__/
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.env
+.env.*
+!.env.example
+data/qdrant
+data/chroma
+data/query_log.db
+data/eval/reports
+logs
+frontend
+node_modules
+.next
+*.log

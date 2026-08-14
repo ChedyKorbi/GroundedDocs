@@ -113,6 +113,7 @@ class HealthResponse(BaseModel):
     service: str
     version: str
     qdrant: bool
+    model_ready: bool = False
     index_chunks: int | None = None
 
 

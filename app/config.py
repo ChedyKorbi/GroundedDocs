@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     # Observability
     querylog_path: str = "data/query_log.db"
 
+    # Containerization / one-command startup
+    seed_on_boot: bool = True
+    seed_samples_dir: str = "data/samples"
+
     log_level: str = "INFO"
 
     groq_api_key: str | None = Field(
