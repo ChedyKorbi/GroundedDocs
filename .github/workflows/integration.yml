@@ -1,7 +1,8 @@
 name: Integration + Eval Gate
 
 # Runs the real-stack suite (Qdrant + Groq) and the evaluation quality gate on
-# main pushes. Skipped when the GROQ_API_KEY secret is not configured.
+# main pushes. Steps are guarded by env.GROQ_API_KEY (injected from the secret)
+# so the workflow stays green when the secret is not configured.
 on:
   push:
     branches: [main]
@@ -13,7 +14,6 @@ jobs:
   integration:
     name: Integration tests + eval gate
     runs-on: ubuntu-latest
-    if: ${{ secrets.GROQ_API_KEY != '' }}
     services:
       qdrant:
         image: qdrant/qdrant:v1.19.0
@@ -43,8 +43,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --extra ml
       - name: Seed sample corpus
+        if: ${{ env.GROQ_API_KEY != '' }}
         run: uv run python scripts/seed.py
       - name: Integration tests
+        if: ${{ env.GROQ_API_KEY != '' }}
         run: uv run pytest -m integration -q
       - name: Evaluation gate (faithfulness + citation accuracy)
+        if: ${{ env.GROQ_API_KEY != '' }}
         run: uv run python scripts/eval_gate.py --limit 12 --faithfulness 0.85 --citation 0.80
