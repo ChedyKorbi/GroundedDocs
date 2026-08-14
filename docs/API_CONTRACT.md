@@ -33,6 +33,7 @@ Version: **1** (frozen Phase 5). Last change: initial freeze.
 | DELETE | `/documents/{document_id}` | yes | Delete a document's chunks (204) |
 | POST | `/reindex` | yes | Zero-downtime re-embed index rebuild |
 | GET | `/metrics` | yes | Aggregated observability + recent queries |
+| GET | `/eval` | yes | Latest published evaluation summary |
 
 ## POST /ask
 
@@ -48,7 +49,7 @@ Response `200`:
   "answer": "...",
   "insufficient": false,
   "confidence": 0.974,
-  "citations": [{"index": 1, "chunk_id": "uuid", "supported": true, "reason": "..."}],
+  "citations": [{"index": 1, "chunk_id": "uuid", "supported": true, "reason": "...", "text": "source snippet"}],
   "sentences": [{"sentence": "...", "checks": [{"index": 1, "chunk_id": "uuid", "supported": true, "reason": "..."}]}],
   "breakdown": {
     "embed_ms": 12.3, "dense_ms": 4.2, "sparse_ms": 0.8, "fusion_ms": 0.1,
@@ -139,6 +140,10 @@ ready; otherwise `degraded` (liveness still 200).
 
 ## Revision log
 
+- **2026-08-14** — v1 rev 4: new `GET /eval` endpoint (latest evaluation
+  summary: faithfulness, relevance, citation accuracy, recall, calibration).
+- **2026-08-14** — v1 rev 3: `/ask` citations and sentence checks gain `text`
+  (the source chunk snippet) so clients can render provenance inline.
 - **2026-08-14** — v1 rev 2: `/health` adds `model_ready` (readiness now
   includes embedding model, not just Qdrant).
 - **2026-08-13** — v1 frozen (Phase 5).

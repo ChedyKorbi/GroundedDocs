@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     # Observability
     querylog_path: str = "data/query_log.db"
 
+    # CORS origins (Phase 8 dashboard)
+    cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
     # Containerization / one-command startup
     seed_on_boot: bool = True
     seed_samples_dir: str = "data/samples"

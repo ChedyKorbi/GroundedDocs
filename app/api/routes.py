@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, Request, UploadFile
 
@@ -19,6 +20,7 @@ from app.api.schemas import (
     CitationSchema,
     DocumentInfo,
     DocumentsResponse,
+    EvalSummaryResponse,
     HealthResponse,
     IngestResponse,
     IngestResult,
@@ -88,20 +90,20 @@ def ask(
     result = services.generation.generate(request.question, retrieval)
     total_ms = (time.perf_counter() - total_start) * 1000.0
 
-    citation_schemas = [
-        CitationSchema(index=c.index, chunk_id=c.chunk_id, supported=c.supported, reason=c.reason)
-        for c in result.citations
-    ]
-    sentence_schemas = [
-        SentenceSchema(
-            sentence=s.sentence,
-            checks=[
-                CitationSchema(
-                    index=c.index, chunk_id=c.chunk_id, supported=c.supported, reason=c.reason
-                )
-                for c in s.checks
-            ],
+    chunk_text = {c.chunk_id: c.text for c in retrieval.chunks}
+
+    def _citation(c: Any) -> CitationSchema:
+        return CitationSchema(
+            index=c.index,
+            chunk_id=c.chunk_id,
+            supported=c.supported,
+            reason=c.reason,
+            text=chunk_text.get(c.chunk_id, ""),
         )
+
+    citation_schemas = [_citation(c) for c in result.citations]
+    sentence_schemas = [
+        SentenceSchema(sentence=s.sentence, checks=[_citation(c) for c in s.checks])
         for s in result.sentences
     ]
 
@@ -287,3 +289,33 @@ def metrics(services: AuthedServices) -> MetricsResponse:
         row["ts"] = row["ts"]
     data["recent_queries"] = recent
     return MetricsResponse(**data)
+
+
+@router.get("/eval", response_model=EvalSummaryResponse, summary="Latest evaluation summary")
+def eval_summary(_services: AuthedServices) -> EvalSummaryResponse:
+    """Serve the most recent published evaluation report (if one exists)."""
+    reports_dir = Path("data/eval/reports")
+    if reports_dir.is_dir():
+        candidates = sorted(reports_dir.glob("eval_hybrid_*.json"), reverse=True)
+        if candidates:
+            try:
+                report = json.loads(candidates[0].read_text(encoding="utf-8"))
+                agg = report.get("aggregates", {})
+                cal = report.get("calibration", {})
+                return EvalSummaryResponse(
+                    generated_at=report.get("generated_at"),
+                    method=report.get("method"),
+                    questions=report.get("questions"),
+                    faithfulness=agg.get("faithfulness"),
+                    relevance=agg.get("relevance"),
+                    citation_accuracy=agg.get("citation_accuracy"),
+                    recall_1=(agg.get("retrieval") or {}).get("recall@1"),
+                    recall_3=(agg.get("retrieval") or {}).get("recall@3"),
+                    correct_refusal_rate=agg.get("correct_refusal_rate"),
+                    failures=len(report.get("failures", [])),
+                    calibration_faithful_agreement=cal.get("faithful_agreement"),
+                    report_path=candidates[0].name,
+                )
+            except Exception:  # noqa: BLE001
+                pass
+    return EvalSummaryResponse()

@@ -25,6 +25,7 @@ class CitationSchema(BaseModel):
     chunk_id: str
     supported: bool
     reason: str = ""
+    text: str = ""
 
 
 class SentenceSchema(BaseModel):
@@ -132,3 +133,18 @@ class MetricsResponse(BaseModel):
     stage_latency: dict[str, Any]
     model_versions: dict[str, Any]
     recent_queries: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class EvalSummaryResponse(BaseModel):
+    generated_at: str | None = None
+    method: str | None = None
+    questions: int | None = None
+    faithfulness: float | None = None
+    relevance: float | None = None
+    citation_accuracy: float | None = None
+    recall_1: float | None = None
+    recall_3: float | None = None
+    correct_refusal_rate: float | None = None
+    failures: int | None = None
+    calibration_faithful_agreement: float | None = None
+    report_path: str | None = None

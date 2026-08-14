@@ -11,6 +11,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.errors import register_exception_handlers
 from app.api.routes import router
@@ -65,5 +66,13 @@ app = FastAPI(
 
 app.add_middleware(RequestLogMiddleware)
 app.add_middleware(RequestContextMiddleware)
+# CORS: the Phase 8 dashboard runs on a separate origin during development.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 register_exception_handlers(app)
 app.include_router(router)
