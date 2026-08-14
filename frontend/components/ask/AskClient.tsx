@@ -20,7 +20,7 @@ function confidenceLabel(v: number): string {
 function AnswerBody({ answer }: { answer: string }) {
   const parts = answer.split(/(\[\d+\])/g);
   return (
-    <p className="font-serif text-[1.35rem] leading-[1.55] tracking-tight text-ink">
+    <p className="text-[1.05rem] leading-[1.7] tracking-normal text-ink">
       {parts.map((part, i) => {
         const m = part.match(/^\[(\d+)\]$/);
         if (!m) return part;
