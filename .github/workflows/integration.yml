@@ -36,7 +36,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Cache HF models
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/hf-cache
           key: hf-models-${{ runner.os }}-e5-crossenc
