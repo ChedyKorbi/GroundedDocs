@@ -4,7 +4,7 @@
 # `ml` extra for embeddings/rerankers) into a venv; the runtime stage copies
 # only that venv + application code for a lean final image.
 
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir uv \
 # Layer 2: application code (kept in a separate layer for cache efficiency).
 COPY . .
 
-FROM python:3.12-slim AS runtime
+FROM python:3.14-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
