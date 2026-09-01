@@ -28,7 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 ml = [
-    "sentence-transformers>=5.6,<6.0",
+    "sentence-transformers>=5.6,<7.0",
 ]
 
 [[tool.uv.index]]
